@@ -9,6 +9,8 @@ clientes na ordem de visita, com o depósito (0) implícito no início e no fim.
 `inst` é o dicionário devolvido por leitor.ler_instancia().
 """
 
+import os
+
 
 def custo_rota(rota, inst):
     """Distância de 0 -> rota[0] -> ... -> rota[-1] -> 0 (rota vazia custa 0)."""
@@ -57,3 +59,15 @@ def problemas(solucao, inst):
 def eh_viavel(solucao, inst):
     """True se todo cliente aparece exatamente uma vez e nenhuma rota excede Q."""
     return not problemas(solucao, inst)
+
+
+def salvar_solucao(solucao, inst, caminho):
+    """Salva no formato .sol da CVRPLIB ("Route #1: ..." e "Cost ...").
+    Pode ser lida de volta com leitor.ler_solucao()."""
+    pasta = os.path.dirname(caminho)
+    if pasta:
+        os.makedirs(pasta, exist_ok=True)
+    with open(caminho, "w", encoding="utf-8") as f:
+        for idx, rota in enumerate(solucao, start=1):
+            f.write(f"Route #{idx}: {' '.join(map(str, rota))}\n")
+        f.write(f"Cost {avaliar(solucao, inst)}\n")

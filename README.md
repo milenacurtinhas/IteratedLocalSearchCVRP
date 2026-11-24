@@ -16,6 +16,7 @@ O algoritmo segue o [ILS-RVND de Subramanian, Uchoa e Ochi (2013)](https://doi.o
 | `solucao.py` | Função objetivo (`avaliar`) e verificação de viabilidade (`eh_viavel`) |
 | `ils.py` | O algoritmo: solução inicial, vizinhanças, RVND, perturbação e laço do ILS |
 | `experimentos.py` | Calibração dos parâmetros e testes finais (gera as tabelas em CSV) |
+| `plotar.py` | Desenha uma solução (a partir de um `.sol` ou rodando o ILS) |
 
 ## Instâncias
 
@@ -29,6 +30,7 @@ pastas ao lado do código:
 ├── solucao.py
 ├── ils.py
 ├── experimentos.py
+├── plotar.py
 ├── A/             (A-n32-k5.vrp, A-n33-k5.vrp, ...)
 ├── A-solutions/   (A-n32-k5.sol, A-n33-k5.sol, ...)
 ├── B/             (B-n31-k5.vrp, ...)
@@ -73,8 +75,9 @@ descartados antes de serem avaliados.
 ### Conferir a leitura das instâncias
 
 ```
-python leitor.py A
-python leitor.py A A-solutions     # confere também os .sol, se estiverem em outra pasta
+python leitor.py A A-solutions
+python leitor.py B B-solutions
+python leitor.py F F-solutions
 ```
 
 Para cada instância com `.sol`, mostra `OK` se o custo recalculado bate com o publicado.
@@ -86,6 +89,20 @@ python ils.py A/A-n32-k5.vrp 1
 ```
 
 O último número é a semente. Mostra cada melhora, o gap em relação ao ótimo e as rotas finais.
+
+### Desenhar uma solução
+ 
+```
+python plotar.py A/A-n32-k5.vrp solucoes/A-n32-k5_semente1.sol   # solução salva (não roda o ILS)
+python plotar.py A/A-n32-k5.vrp A-solutions/A-n32-k5.sol         # solução ótima da CVRPLIB
+python plotar.py A/A-n32-k5.vrp 1                                # roda o ILS, salva o .sol e desenha
+```
+ 
+Salva a figura em `solucoes/` (ex.: `solucoes/A-n32-k5_semente1.png`), com uma cor por
+rota, o depósito destacado e a carga de cada rota. Requer `matplotlib`, usado só para desenhar.
+ 
+Cada execução do `experimentos.py` é gravada no CSV assim que termina. Se o
+programa for interrompido, rode o mesmo comando de novo: o que já foi feito é pulado.
 
 ### Calibrar os parâmetros
 
@@ -114,6 +131,7 @@ rodado uma pasta por vez. Gera:
 - `tabela_final.csv`: Instância, fSol_Ótima, fMH (Min5 e Média5), Tempo (Min5 e Média5), gapMin e gapMédia, com todas as instâncias já executadas
 - `execucoes.csv`: resultado de cada execução
 - `historicos.json`: melhor valor por iteração de cada execução (chave `instância|semente`), para o gráfico de convergência; a coluna `Semente_Min5` da tabela indica a melhor execução
+- `solucoes/<instância>_semente<s>.sol`: a solução de cada execução
 
 Se mudar os parâmetros, as execuções antigas continuam no `execucoes.csv`, mas a tabelausa só as feitas com os parâmetros informados no comando.
 

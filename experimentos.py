@@ -18,8 +18,9 @@ são puladas.
 
     python experimentos.py final A B F --kmax 5 --sem-melhora 3 --p-swap 0.5
 
-   Também dá para rodar uma pasta por vez. Gera execucoes.csv, historicos.json
-   e tabela_final.csv (com todas as instâncias já executadas).
+   Também dá para rodar uma pasta por vez. Gera execucoes.csv, historicos.json,
+   tabela_final.csv (com todas as instâncias já executadas) e a solução de cada
+   execução em solucoes/<instância>_semente<s>.sol.
 """
 
 import argparse
@@ -32,7 +33,7 @@ import re
 
 from ils import ils
 from leitor import ler_instancia
-from solucao import eh_viavel
+from solucao import eh_viavel, salvar_solucao
 
 # Níveis (pequeno, médio, grande) de cada parâmetro calibrado
 NIVEIS_KMAX = [2, 5, 10]
@@ -44,6 +45,7 @@ ARQ_CALIBRACAO = "calibracao.csv"
 ARQ_EXECUCOES = "execucoes.csv"
 ARQ_HISTORICOS = "historicos.json"
 ARQ_TABELA = "tabela_final.csv"
+PASTA_SOLUCOES = "solucoes"
 
 COLUNAS = ["instancia", "otimo", "kmax", "sem_melhora", "p_swap", "semente",
            "fMH", "gap", "tempo_melhor", "tempo_total", "iteracoes"]
@@ -100,7 +102,7 @@ def gap(f, otimo):
 
 
 def executar(inst, kmax, sem_melhora, p_swap, semente, tempo):
-    """Uma execução do ILS. Devolve a linha do CSV e o histórico."""
+    """Uma execução do ILS. Devolve a linha do CSV, o histórico e a solução."""
     r = ils(inst,
             max_sem_melhora=sem_melhora * inst["n"],
             kmax=kmax, p_swap=p_swap, semente=semente, tempo_limite=tempo)
@@ -116,7 +118,7 @@ def executar(inst, kmax, sem_melhora, p_swap, semente, tempo):
     print(f"  {inst['nome']:<11} kmax={kmax:<2} semMelhora={sem_melhora}n p_swap={p_swap:<4} "
           f"semente={semente} -> f={r['custo']} gap={linha['gap']:.2f}% "
           f"({r['tempo_total']:.0f} s)", flush=True)
-    return linha, r["historico"]
+    return linha, r["historico"], r["solucao"]
 
 # Calibração
 
@@ -130,7 +132,7 @@ def calibrar(args):
         for k, m, p in COMBINACOES:
             if (inst["nome"], k, m, p, 1) in feitas:
                 continue
-            linha, _ = executar(inst, k, m, p, semente=1, tempo=tempo)
+            linha, _, _ = executar(inst, k, m, p, semente=1, tempo=tempo)
             anexar_csv(ARQ_CALIBRACAO, linha)
 
     analisar(args)
@@ -197,13 +199,17 @@ def final(args):
         for s in range(1, 6):
             if (inst["nome"], args.kmax, args.sem_melhora, args.p_swap, s) in feitas:
                 continue
-            linha, hist = executar(inst, args.kmax, args.sem_melhora, args.p_swap, s, args.tempo)
+            linha, hist, sol = executar(inst, args.kmax, args.sem_melhora, args.p_swap, s, args.tempo)
+            salvar_solucao(sol, inst, caminho_sol(inst["nome"], s))
             anexar_csv(ARQ_EXECUCOES, linha)
             historicos[f"{inst['nome']}|{s}"] = hist
             with open(ARQ_HISTORICOS, "w", encoding="utf-8") as f:
                 json.dump(historicos, f)
 
     gerar_tabela(args)
+
+def caminho_sol(nome, semente):
+    return os.path.join(PASTA_SOLUCOES, f"{nome}_semente{semente}.sol")
 
 
 def gerar_tabela(args):

@@ -19,7 +19,7 @@ import sys
 import time
 
 from leitor import ler_instancia
-from solucao import avaliar, carga_rota, custo_rota, eh_viavel, problemas
+from solucao import avaliar, carga_rota, custo_rota, eh_viavel, problemas, salvar_solucao
 
 
 # 1. Solução inicial: inserção mais barata viável
@@ -297,7 +297,7 @@ def ils(inst, max_iter=None, max_sem_melhora=None, kmax=5, p_swap=0.5,
     rng = random.Random(semente)
     inicio = time.perf_counter()
 
-    s = rvnd(solucao_inicial(inst, rng), inst, rng) # gera solução inicial (para casos pequenos/médios, heurísticas construtivas gulosas geram pontos de partida muito superiores aos aleatórios, acelerando a busca local) e aplica RVND
+    s = rvnd(solucao_inicial(inst, rng), inst, rng)
     melhor, f_melhor = s, avaliar(s, inst)
     t_melhor = time.perf_counter() - inicio
     historico = [f_melhor] # historico[it] = melhor valor após a iteração it
@@ -348,3 +348,7 @@ if __name__ == "__main__":
           f"total: {res['tempo_total']:.1f} s | iterações: {res['iteracoes']}")
     for idx, rota in enumerate(s, 1):
         print(f"Route #{idx}: {' '.join(map(str, rota))}")
+
+    arq_sol = f"solucoes/{inst['nome']}_semente{semente}.sol"
+    salvar_solucao(s, inst, arq_sol)
+    print(f"Salvo: {arq_sol}")
