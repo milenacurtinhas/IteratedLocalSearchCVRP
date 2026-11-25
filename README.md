@@ -17,6 +17,14 @@ O algoritmo segue o [ILS-RVND de Subramanian, Uchoa e Ochi (2013)](https://doi.o
 | `ils.py` | O algoritmo: solução inicial, vizinhanças, RVND, perturbação e laço do ILS |
 | `experimentos.py` | Calibração dos parâmetros e testes finais (gera as tabelas em CSV) |
 | `plotar.py` | Desenha uma solução (a partir de um `.sol` ou rodando o ILS) |
+| `graficos.py` | Gráficos dos experimentos: calibração, gap e tempo por tamanho, convergência e TTT-plot |
+ 
+## Requisitos
+ 
+- Python 3.8 ou superior
+- Nenhuma biblioteca de otimização: todos os algoritmos foram implementados do zero, usando só a biblioteca padrão do Python
+- `matplotlib`, apenas para desenhar as soluções (`plotar.py`): `pip install matplotlib`
+
 
 ## Instâncias
 
@@ -31,6 +39,7 @@ pastas ao lado do código:
 ├── ils.py
 ├── experimentos.py
 ├── plotar.py
+├── graficos.py
 ├── A/             (A-n32-k5.vrp, A-n33-k5.vrp, ...)
 ├── A-solutions/   (A-n32-k5.sol, A-n33-k5.sol, ...)
 ├── B/             (B-n31-k5.vrp, ...)
@@ -148,6 +157,19 @@ Se mudar os parâmetros, as execuções antigas continuam no `execucoes.csv`, ma
 Níveis usados na calibração: kmax ∈ {2, 5, 10}, MaxSemMelhora ∈ {n, 3n, 6n},
 p_swap ∈ {0,25; 0,5; 0,75}. Para mudar, edite as listas `NIVEIS_*` no início de
 `experimentos.py`.
+
+### Gráficos dos experimentos
+ 
+```
+python graficos.py todos --conv B/B-n56-k7.vrp
+```
+ 
+Lê `calibracao.csv`, `execucoes.csv` e `tabela_final.csv` e salva em `graficos/`:
+mapa de calor da calibração, gap e tempo por tamanho, gap por ocupação da frota,
+convergência da melhor execução e TTT-plot (50 execuções até atingir o ótimo, alguns
+minutos). Cada gráfico também pode ser gerado sozinho: `calibracao`, `resultados`,
+`convergencia` ou `ttt`.
+
 
 ## Referências
 

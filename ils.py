@@ -301,6 +301,7 @@ def ils(inst, max_iter=None, max_sem_melhora=None, kmax=5, p_swap=0.5,
     melhor, f_melhor = s, avaliar(s, inst)
     t_melhor = time.perf_counter() - inicio
     historico = [f_melhor] # historico[it] = melhor valor após a iteração it
+    historico_atual = [f_melhor] # historico_atual[it] = custo de s' na iteração it
 
     it = sem_melhora = 0
     while it < max_iter and sem_melhora < max_sem_melhora:
@@ -312,6 +313,7 @@ def ils(inst, max_iter=None, max_sem_melhora=None, kmax=5, p_swap=0.5,
 
         s = rvnd(perturbar(melhor, inst, rng, kmax, p_swap), inst, rng)
         f = avaliar(s, inst)
+        historico_atual.append(f)
         if f < f_melhor: # aceitação "Better"
             melhor, f_melhor = s, f
             t_melhor = time.perf_counter() - inicio
@@ -329,6 +331,7 @@ def ils(inst, max_iter=None, max_sem_melhora=None, kmax=5, p_swap=0.5,
         "tempo_total": time.perf_counter() - inicio,
         "iteracoes": it,
         "historico": historico,
+        "historico_atual": historico_atual,
     }
 
 
